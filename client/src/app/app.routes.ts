@@ -11,5 +11,9 @@ export const routes: Routes = [
     {
         path:"product",
         component:ProductList
+    },
+    {
+        path:"order",
+        component:ProductList
     }
 ];
