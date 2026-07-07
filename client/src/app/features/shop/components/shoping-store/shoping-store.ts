@@ -10,15 +10,17 @@ import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelect, MatOption } from "@angular/material/select";
 import { category, Product, ProductListResponse } from '../../../../shared/shopModel';
-import { Subject } from 'rxjs';
+import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AddToCart, billing } from '../../../../shared/store/cartState/action.cart';
+import { AddToCart, billing, removeFromCart } from '../../../../shared/store/cartState/action.cart';
 import { ProductState } from '../../../../shared/store/productState/reducer.product';
-import { selectCartItems, selectCartState, selectItemCount, selectTotalAmount } from '../../../../shared/store/cartState/selector.cart';
-import { selectProducts, selectTotalItems } from '../../../../shared/store/productState/selector.product';
+import { selectCartItems, selectCartState, selectFormValues, selectItemCount, selectName, selectTotalAmount } from '../../../../shared/store/cartState/selector.cart';
+import { selectCurrentPage, selectProducts, selectTotalItems, selectTotalPages } from '../../../../shared/store/productState/selector.product';
 import { ProductActions } from '../../../../shared/store/productState/action.product';
 import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
+import { A11yModule } from "@angular/cdk/a11y";
+import { CommonModule } from '@angular/common';
 
 export interface item {
   productName?: string;
@@ -44,8 +46,10 @@ export interface item {
     MatOption,
     MatTableModule,
     MatCheckboxModule,
-    MatListModule
-  ],
+    MatListModule,
+    A11yModule,
+    CommonModule
+],
   templateUrl: './shoping-store.html',
   styleUrl: './shoping-store.css',
 })
@@ -61,6 +65,10 @@ export class ShopingStore {
   cartState = this.store.selectSignal(selectCartState)
   totalAmount = this.store.selectSignal(selectTotalAmount)
   totalProducts = this.store.selectSignal(selectItemCount)
+  customerName = this.store.selectSignal(selectName)
+  apiDataSubmiton = this.store.selectSignal(selectFormValues)
+  currentPage = this.store.selectSignal(selectCurrentPage)
+  totalPage = this.store.selectSignal(selectTotalPages)
 
   firstFormGroup = this._formBuilder.group({
     firstCtrl: ['', Validators.required],
@@ -86,19 +94,39 @@ export class ShopingStore {
 
 
   ngOnInit(): void {
-    this.store.dispatch(ProductActions.loadProducts(this.filters()))
     this.dataSource.data = this.cart()
 
     this.http.get<category[]>("http://localhost:8000/category").subscribe((res) => {
       console.log(res)
+      console.log(this.cartState())
       this.category.set(res)
     })
+
+    this.searchSubject.pipe(
+          debounceTime(500),
+          distinctUntilChanged()
+        ).subscribe(name => {
+    
+          this.filters.update(f => ({
+            ...f,
+            name,
+            page: 1
+          }));
+    
+        });
   }
 
   constructor() {
     effect(() => {
       this.dataSource.data = this.cart()
     })
+
+    effect(() => {
+      this.store.dispatch(ProductActions.loadProducts(this.filters()))
+    })
+
+
+    
   }
 
   displayedColumns: string[] = ['product', 'quantity', 'price', 'subtotal'];
@@ -116,6 +144,10 @@ export class ShopingStore {
     this.dataSource.data = this.cart()
   }
 
+  removeFromCartHandler(product:item){
+      this.store.dispatch(removeFromCart({product}))
+  }
+
   onBilling() {
 
     this.store.dispatch(
@@ -125,6 +157,40 @@ export class ShopingStore {
       })
     );
     console.log(this.cartState())
+  }
+
+  onSubmit(){
+    console.log(this.apiDataSubmiton())
+    this.http.post("http://localhost:8000/order",this.apiDataSubmiton()).subscribe(
+      res => console.log(res)
+    )
+  }
+
+  onCategoryChange(category: string) {
+    this.filters.update(f => ({
+      ...f,
+      category,
+      page: 1
+    }));
+  }
+
+  onSearch(name: string) {
+    this.searchSubject.next(name);
+  }
+
+  onPageSizeChange(pageSize: number) {
+    this.filters.update(f => ({
+      ...f,
+      pageSize,
+      page: 1
+    }));
+  }
+
+  onNextPage(page: number) {
+    this.filters.update(f => ({
+      ...f,
+      page
+    }));
   }
 
 }

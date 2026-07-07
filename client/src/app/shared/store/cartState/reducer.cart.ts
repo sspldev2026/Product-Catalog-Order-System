@@ -53,11 +53,28 @@ export const cartReducer = createReducer(
             totalAmount:state.totalAmount+((product.quantity)*product.price)
         }
     }),
-    on(removeFromCart,(state,{productId})=>{
+    on(removeFromCart,(state,{product})=>{
+        const isProductInCart = state.items.find(res => res.productId === product.productId)
+        if (isProductInCart !== undefined && isProductInCart.quantity > 1) {
+            return {
+                ...state,
+                items: state.items.map(item=>
+                    item.productId === product.productId ?
+                    {
+                        ...item,
+                        quantity:item.quantity-1,
+                        subtotal:item.subtotal-item.price
+                    }:item
+                ),
+                totalProduct:state.totalProduct-1,
+                totalAmount:state.totalAmount-product.price
+            }
+        }
         return {
             ...state,
-            items:state.items.filter(res=>res.productId !== productId),
+            items:state.items.filter(res => res.productId !== product.productId),
             totalProduct:state.totalProduct-1,
+            totalAmount:state.totalAmount-product.price
         }
     }),
     on(billing,(state,{name,paymentMethod})=>({

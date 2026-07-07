@@ -18,6 +18,12 @@ const orderSchema = new mongoose.Schema({
             subtotal: Number
         }
     ],
+    offerIds: [
+        {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "offers",
+        }
+    ],
     totalAmount: Number,
     paymentMethod: {
         type: String,

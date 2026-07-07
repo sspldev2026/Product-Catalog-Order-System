@@ -1,9 +1,6 @@
-const express = require("express")
 const Product = require("../models/productModel")
 
-const router = express.Router()
-
-router.get("/", async (req, res) => {
+const productPaginationController = async (req, res) => {
   try {
     let { name, category, page = 1, pagesize = 10, asc = 1 } = req.query;
 
@@ -47,7 +44,6 @@ router.get("/", async (req, res) => {
       message: err.message,
     });
   }
-});
+}
 
-
-module.exports = router
+module.exports = {productPaginationController}

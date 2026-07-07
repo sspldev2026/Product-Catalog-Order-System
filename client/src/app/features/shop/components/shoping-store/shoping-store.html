@@ -5,16 +5,28 @@
     <mat-step [stepControl]="firstFormGroup">
         <form [formGroup]="firstFormGroup">
             <ng-template matStepLabel>Add Product to Cart</ng-template>
-            <mat-form-field>
+            <mat-form-field class="example-full-width" style="padding: 0px 10px;">
                 <mat-label>Search Product</mat-label>
-                <input matInput placeholder="Shoe" required>
+                <input matInput placeholder="Ex. Shoe" (input)="onSearch($event.target.value)">
             </mat-form-field>
-            <mat-form-field style="margin: 0px 20px;">
+
+            <mat-form-field style="padding: 0px 10px;">
                 <mat-label>Select Category</mat-label>
-                <mat-select>
-                    @for (cat of category(); track cat) {
-                    <mat-option [value]="cat._id">{{cat.title}}</mat-option>
+                <mat-select (valueChange)="onCategoryChange($event)">
+                    <mat-option [value]="">All</mat-option>
+                    @for (catagorys of category(); track catagorys._id) {
+                    <mat-option [value]="catagorys._id">{{catagorys.title}}</mat-option>
                     }
+
+                </mat-select>
+            </mat-form-field>
+
+            <mat-form-field style="padding: 0px 10px;">
+                <mat-label>Page size</mat-label>
+                <mat-select (valueChange)="onPageSizeChange($event)">
+                    <mat-option [value]="5">5</mat-option>
+                    <mat-option [value]="10">10</mat-option>
+                    <mat-option [value]="25">25</mat-option>
                 </mat-select>
             </mat-form-field>
 
@@ -33,7 +45,7 @@
 
                     <mat-card-content>
                         <p>{{ product.description }}</p>
-                        <mat-card-subtitle>Price {{product.price}}</mat-card-subtitle>
+                        <mat-card-subtitle>Price {{product.price |currency : "INR"}}</mat-card-subtitle>
                         @if(product.stock<=1){ <mat-card-subtitle style="color: red;">Stock
                             {{product.stock}}</mat-card-subtitle>
                             }@else {
@@ -42,10 +54,27 @@
 
                     </mat-card-content>
                     <mat-card-footer>
-
+                        
                     </mat-card-footer>
-                    @if(product.stock<=1){ <button matButton disabled>Add to Cart</button> }@else {
-                        <button matButton (click)="addToCartHandler(product)">Add to Cart</button> }
+                    @if(product.stock<=1){ <button matButton disabled>Add to Cart</button>
+                        }@else {
+                        @if(cart().filter(res => res.productId === product._id).length === 1 ){
+                        <div class="example-button-row">
+                            <button matButton="elevated"
+                                (click)="removeFromCartHandler(cart().filter(res => res.productId === product._id)[0])">Remove</button>
+                            <button matButton="elevated" disabled>{{cart().filter(res => res.productId ===
+                                product._id)[0].quantity}}</button>
+                            <button matButton="elevated" (click)="addToCartHandler(product)">Add</button>
+                        </div>
+                        }@else {
+                        <div class="example-button-row">
+                            <button matButton (click)="addToCartHandler(product)">Add to Cart</button>
+                        </div>
+
+
+                        }
+
+                        }
 
 
                 </mat-card>
@@ -53,8 +82,19 @@
 
 
             </div>
-            <mat-paginator [length]="100" [pageSize]="10" [pageSizeOptions]="[5, 10, 25, 100]" aria-label="Select page">
-            </mat-paginator>
+            <div class="example-button-row">
+                            <button matButton="elevated" [disabled]="currentPage() === 1" style="margin: 0px 10px;"
+                                (click)="onNextPage(currentPage()-1)">
+                                Previous
+                            </button>
+
+                            <span>Page {{ currentPage() }} of {{ totalPage() }}</span>
+
+                            <button matButton="elevated" [disabled]="currentPage() === totalPage()"
+                                style="margin: 0px 10px;" (click)="onNextPage(currentPage()+1)">
+                                Next
+                            </button>
+                        </div>
             <div>
                 <button matButton matStepperNext>Next</button>
             </div>
@@ -72,6 +112,15 @@
             <mat-form-field>
                 <mat-label>Customer Name</mat-label>
                 <input matInput formControlName="secondCtrl" placeholder="Ex. Ram" required>
+            </mat-form-field>
+            <mat-form-field style="margin: 0px 20px;">
+                <mat-label>Select Payment Method</mat-label>
+                <mat-select formControlName="paymentMethod">
+                    <mat-option [value]="'CASH'">Cash</mat-option>
+                    <mat-option [value]="'UPI'">UPI</mat-option>
+                    <mat-option [value]="'CARD'">CARD</mat-option>
+
+                </mat-select>
             </mat-form-field>
 
             <table mat-table [dataSource]="dataSource">
@@ -91,12 +140,12 @@
                 <!-- Symbol Column -->
                 <ng-container matColumnDef="price">
                     <th mat-header-cell *matHeaderCellDef> price </th>
-                    <td mat-cell *matCellDef="let element"> {{element.price}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.price|currency : "INR"}}</td>
                 </ng-container>
 
                 <ng-container matColumnDef="subtotal">
                     <th mat-header-cell *matHeaderCellDef> subtotal </th>
-                    <td mat-cell *matCellDef="let element"> {{element.subtotal}} </td>
+                    <td mat-cell *matCellDef="let element"> {{element.subtotal |currency : "INR"}} </td>
                 </ng-container>
 
                 <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
@@ -115,15 +164,7 @@
                     rupees shoping</mat-checkbox>
             </section>
 
-            <mat-form-field style="margin: 0px 20px;">
-                <mat-label>Select Payment Method</mat-label>
-                <mat-select formControlName="paymentMethod">
-                    <mat-option [value]="'CASH'">Cash</mat-option>
-                    <mat-option [value]="'UPI'">UPI</mat-option>
-                    <mat-option [value]="'CARD'">CARD</mat-option>
 
-                </mat-select>
-            </mat-form-field>
             <div>
                 <button matButton matStepperPrevious>Back</button>
                 <button matButton matStepperNext (click)="onBilling()">Next</button>
@@ -136,19 +177,24 @@
     </mat-step>
     <mat-step>
         <ng-template matStepLabel>Preview</ng-template>
-
+        <mat-card-title>Name: {{customerName()|uppercase}}</mat-card-title>
         <mat-card-subtitle>Products</mat-card-subtitle>
         <mat-list role="list">
-            @for (item of cart(); track $index) {
-                <mat-list-item role="listitem">{{item.productName}} {{item.quantity}}X{{item.price}} = {{item.subtotal}}</mat-list-item>
+            <hr>
+
+            @for (item of cart(); track item.productId) {
+            <mat-list-item role="listitem">{{item.productName}} ( {{item.quantity}} X {{item.price|currency : "INR"}} )
+                =
+                {{item.subtotal|currency : "INR"}}</mat-list-item>
+            <hr>
             }
-            <mat-list-item role="listitem">Total Amount {{totalAmount()}}</mat-list-item>
-            <mat-list-item role="listitem">Total Amount {{totalAmount()}}</mat-list-item>
         </mat-list>
+        <mat-list-item role="listitem">Total Items {{totalProducts()}}</mat-list-item>
+        <mat-list-item role="listitem">Total Amount {{totalAmount() |currency : "INR"}}</mat-list-item>
         <p>You are now done.</p>
         <div>
             <button matButton matStepperPrevious>Back</button>
-            <button matButton (click)="stepper.reset()">Reset</button>
+            <button matButton (click)="onSubmit()">Order</button>
         </div>
     </mat-step>
 </mat-stepper>

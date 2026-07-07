@@ -23,3 +23,18 @@ export const selectTotalAmount = createSelector(
     selectCartState,
     (state)=>state.totalAmount
 )
+
+export const selectName = createSelector(
+    selectCartState,
+    (state)=>state.customerName
+)
+
+export const selectFormValues = createSelector(
+    selectCartState,
+    (state)=>({
+      customerName:state.customerName,
+      items:state.items,
+      paymentMethod:state.paymentMethod,
+      totalAmount:state.totalAmount
+    })
+)

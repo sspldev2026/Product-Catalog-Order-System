@@ -4,10 +4,10 @@ import { item } from "./reducer.cart";
 export const AddToCart = createAction('[Cart] add product', props<{product:item}>());
 export const AddToCartSuccess = createAction('[Cart] add product success');
 
-export const removeFromCart = createAction('[Cart] remove product', props<{productId:string}>());
-export const removeFromCartSuccess = createAction('[Cart] add product success');
+export const removeFromCart = createAction('[Cart] remove product', props<{product:item}>());
+export const removeFromCartSuccess = createAction('[Cart] add product success',props);
 
-export const billing = createAction('[Cart] remove product', props<{name:string,paymentMethod:"UPI"|"CARD"|"CASH"}>());
+export const billing = createAction('[Cart] add name payment method', props<{name:string,paymentMethod:"UPI"|"CARD"|"CASH"}>());
 
 
 

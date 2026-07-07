@@ -4,10 +4,14 @@ const app = express()
 const category = require("./models/categoryModel.js")
 const Product = require("./models/productModel.js")
 const Orders = require("./models/orderModel.js")
+const OffersModel = require("./models/offerModel.js")
 const bodyParser = require('body-parser');
 const cors = require('cors');
 
 const productRouter = require("./router/productRouter.js")
+const offerRouter = require("./router/offerRouter.js")
+const orderRotuer = require("./router/orderRouter.js")
+const categoryRotuer = require("./router/categoryRouter.js")
 
 app.use(express.json())
 
@@ -19,8 +23,6 @@ const corsOptions = {
 app.use(cors(corsOptions))
 
 
-
-
 try {
     mongoose.connect('mongodb://127.0.0.1:27017/product').then(() => {
         console.log("DB connected")
@@ -30,16 +32,11 @@ try {
     handleError(error);
 }
 
-
-
 app.use("/product",productRouter)
+app.use("/offer",offerRouter)
+app.use("/order",orderRotuer)
+app.use("/category",categoryRotuer)
 
-
-
-app.get("/category", async (req, res) => {
-    const hi = await category.find()
-    res.send(hi)
-})
 
 app.get("/products", async (req, res) => {
     const hi = await Product.find().populate("category")
@@ -143,27 +140,14 @@ app.get("/bulkProduct", async (req, res) => {
     res.send(hi)
 })
 
-app.post("/order", async (req, res) => {
-    console.log(req.body)
-    const { customerName, items, totalAmount, paymentMethod, status } = req.body
-    const hi = await Orders.create({
-        customerName, items, totalAmount, paymentMethod, status
-    })
-    res.send(hi)
-})
-app.get("/orders", async (req, res) => {
-    const hi = await Orders.find().populate({
-        path: 'items',
-        populate: {
-            path: 'productId'
-        }
-    })
-    res.send(hi)
-})
-
-
-
-
+// app.post("/order", async (req, res) => {
+//     console.log(req.body)
+//     const { customerName, items, totalAmount, paymentMethod, status } = req.body
+//     const hi = await Orders.create({
+//         customerName, items, totalAmount, paymentMethod, status
+//     })
+//     res.send(hi)
+// })
 
 
 app.listen(8000, () => console.log("Server running on port 8000"))

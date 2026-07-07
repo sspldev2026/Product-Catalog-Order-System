@@ -1,5 +1,6 @@
 li{
-    cursor: pointer;;
+    cursor: pointer;
+    font-size: medium;
 }
 .example-spacer {
   flex: 1 1 auto;

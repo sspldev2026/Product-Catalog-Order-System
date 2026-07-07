@@ -6,6 +6,12 @@ import { ProductList } from './features/shop/components/product-list/product-lis
 export const routes: Routes = [
     {
         path:"",
+        redirectTo:"/shop",
+        pathMatch:'full'
+    },
+
+    {
+        path:"shop",
         component:ShopingStore
     },
     {
