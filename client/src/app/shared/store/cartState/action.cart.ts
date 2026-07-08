@@ -10,6 +10,9 @@ export const removeFromCartSuccess = createAction('[Cart] add product success',p
 export const billing = createAction('[Cart] add name payment method', props<{name:string,paymentMethod:"UPI"|"CARD"|"CASH"}>());
 
 
+export const resetCart = createAction('[Cart] reset cart');
+
+
 
 // export const setCustomValue = createAction(
 //   '[Cart] Set Custom Value',

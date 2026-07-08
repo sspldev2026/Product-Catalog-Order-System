@@ -32,7 +32,7 @@ const OrderPlaceController = async (req, res) => {
     if(offerId) offerIds.push(offerId)
 
     for (const element of items) {
-        let x = await isInStock(element.productId,element.quantity)
+        let x = await isInStock(element.productId, element.quantity)
         if (x === false){
             isProductInStock = false
             break

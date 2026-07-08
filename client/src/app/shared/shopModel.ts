@@ -1,3 +1,5 @@
+import { offers } from "./service/share-service";
+
 export interface Product {
   _id: string;
   name: string;
@@ -5,10 +7,7 @@ export interface Product {
   price: number;
   stock: number;
   category?: category;
-  brand?: string;
   image?: string;
-  images?: string;
-  rating?: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -25,4 +24,19 @@ export interface ProductListResponse {
   pageSize: number;
   totalItems: number;
   totalPages: number;
+}
+
+export interface order {
+  productId: Product,
+  quantity: number,
+  subtotal: number
+}
+
+export interface orderResponce {
+  _id: string,
+  customerName: string,
+  items: order[],
+  offerIds: offers[],
+  totalAmount: 630,
+  paymentMethod: string
 }

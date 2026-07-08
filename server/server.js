@@ -38,11 +38,6 @@ app.use("/order",orderRotuer)
 app.use("/category",categoryRotuer)
 
 
-app.get("/products", async (req, res) => {
-    const hi = await Product.find().populate("category")
-    console.log(hi)
-    res.send(hi[0])
-})
 
 app.get("/bulkProduct", async (req, res) => {
     products = [
@@ -140,14 +135,6 @@ app.get("/bulkProduct", async (req, res) => {
     res.send(hi)
 })
 
-// app.post("/order", async (req, res) => {
-//     console.log(req.body)
-//     const { customerName, items, totalAmount, paymentMethod, status } = req.body
-//     const hi = await Orders.create({
-//         customerName, items, totalAmount, paymentMethod, status
-//     })
-//     res.send(hi)
-// })
 
 
 app.listen(8000, () => console.log("Server running on port 8000"))

@@ -1,12 +1,24 @@
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
-import { ProductListResponse } from '../shopModel';
+import { orderResponce, ProductListResponse } from '../shopModel';
+import { toSignal } from '@angular/core/rxjs-interop';
+import {MatSnackBar} from '@angular/material/snack-bar';
+
+export interface offers{
+        _id: string,
+        title: string,
+        description: string,
+        discountType: string,
+        minimumPurchase: number,
+        discountValue: number
+    }
 
 @Injectable({
   providedIn: 'root',
 })
 export class ShareService {
   http = inject(HttpClient)
+  snakemodule = inject(MatSnackBar)
   
   getProducts(
     page: number = 1,
@@ -32,5 +44,15 @@ export class ShareService {
       'http://localhost:8000/product',
       { params }
     );
+  }
+
+  offers = toSignal<offers[]>(this.getOffers())
+
+  getOffers(){
+    return this.http.get<offers[]>("http://localhost:8000/offer")
+  }
+
+  showSnake(message:string){
+    this.snakemodule.open(message,"close")
   }
 }

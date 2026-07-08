@@ -12,8 +12,7 @@ import { MatSelect, MatOption } from "@angular/material/select";
 import { category, Product, ProductListResponse } from '../../../../shared/shopModel';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
-import { AddToCart, billing, removeFromCart } from '../../../../shared/store/cartState/action.cart';
-import { ProductState } from '../../../../shared/store/productState/reducer.product';
+import { AddToCart, billing, removeFromCart, resetCart } from '../../../../shared/store/cartState/action.cart';
 import { selectCartItems, selectCartState, selectFormValues, selectItemCount, selectName, selectTotalAmount } from '../../../../shared/store/cartState/selector.cart';
 import { selectCurrentPage, selectProducts, selectTotalItems, selectTotalPages } from '../../../../shared/store/productState/selector.product';
 import { ProductActions } from '../../../../shared/store/productState/action.product';
@@ -21,6 +20,8 @@ import {MatCheckboxModule} from '@angular/material/checkbox';
 import {MatListModule} from '@angular/material/list';
 import { A11yModule } from "@angular/cdk/a11y";
 import { CommonModule } from '@angular/common';
+import { ShareService } from '../../../../shared/service/share-service';
+import { Router } from '@angular/router';
 
 export interface item {
   productName?: string;
@@ -41,7 +42,6 @@ export interface item {
     MatInputModule,
     MatFormFieldModule,
     MatCardModule,
-    MatPaginator,
     MatSelect,
     MatOption,
     MatTableModule,
@@ -60,6 +60,8 @@ export class ShopingStore {
   private store = inject(Store)
 
   searchSubject = new Subject<string>()
+  shareService = inject(ShareService)
+  router = inject(Router)
 
   cart = this.store.selectSignal(selectCartItems)
   cartState = this.store.selectSignal(selectCartState)
@@ -160,10 +162,13 @@ export class ShopingStore {
   }
 
   onSubmit(){
-    console.log(this.apiDataSubmiton())
-    this.http.post("http://localhost:8000/order",this.apiDataSubmiton()).subscribe(
-      res => console.log(res)
-    )
+    this.http.post("http://localhost:8000/order",this.apiDataSubmiton()).subscribe({
+      next:(res)=>{
+        this.shareService.showSnake("Order Has been placed")
+        this.store.dispatch(resetCart())
+        this.router.navigate(["/Order"])
+      }
+    })
   }
 
   onCategoryChange(category: string) {

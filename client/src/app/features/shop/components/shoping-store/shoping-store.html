@@ -1,7 +1,7 @@
 <!-- <button matButton="elevated" (click)="isLinear = !isLinear" id="toggle-linear">
     {{!isLinear ? 'Enable linear mode' : 'Disable linear mode'}}
 </button> -->
-<mat-stepper [linear]="isLinear" #stepper>
+<mat-stepper [linear]="isLinear" #stepper style="padding: 20px 10px;">
     <mat-step [stepControl]="firstFormGroup">
         <form [formGroup]="firstFormGroup">
             <ng-template matStepLabel>Add Product to Cart</ng-template>
@@ -54,9 +54,10 @@
 
                     </mat-card-content>
                     <mat-card-footer>
-                        
+
                     </mat-card-footer>
-                    @if(product.stock<=1){ <button matButton disabled>Add to Cart</button>
+                    @if(product.stock<=1){ 
+                        <button matButton disabled>Add to Cart</button>
                         }@else {
                         @if(cart().filter(res => res.productId === product._id).length === 1 ){
                         <div class="example-button-row">
@@ -64,7 +65,8 @@
                                 (click)="removeFromCartHandler(cart().filter(res => res.productId === product._id)[0])">Remove</button>
                             <button matButton="elevated" disabled>{{cart().filter(res => res.productId ===
                                 product._id)[0].quantity}}</button>
-                            <button matButton="elevated" (click)="addToCartHandler(product)">Add</button>
+                            <button matButton="elevated" [disabled]="product.stock<=cart().filter(res => res.productId ===
+                                product._id)[0].quantity" (click)="addToCartHandler(product)">Add</button>
                         </div>
                         }@else {
                         <div class="example-button-row">
@@ -83,20 +85,20 @@
 
             </div>
             <div class="example-button-row">
-                            <button matButton="elevated" [disabled]="currentPage() === 1" style="margin: 0px 10px;"
-                                (click)="onNextPage(currentPage()-1)">
-                                Previous
-                            </button>
+                <button matButton="elevated" [disabled]="currentPage() === 1" style="margin: 0px 10px;"
+                    (click)="onNextPage(currentPage()-1)">
+                    Previous
+                </button>
 
-                            <span>Page {{ currentPage() }} of {{ totalPage() }}</span>
+                <span>Page {{ currentPage() }} of {{ totalPage() }}</span>
 
-                            <button matButton="elevated" [disabled]="currentPage() === totalPage()"
-                                style="margin: 0px 10px;" (click)="onNextPage(currentPage()+1)">
-                                Next
-                            </button>
-                        </div>
+                <button matButton="elevated" [disabled]="currentPage() === totalPage()" style="margin: 0px 10px;"
+                    (click)="onNextPage(currentPage()+1)">
+                    Next
+                </button>
+            </div>
             <div>
-                <button matButton matStepperNext>Next</button>
+                <button matButton matStepperNext [disabled]="cart().length < 1">Next</button>
             </div>
         </form>
 
@@ -153,21 +155,30 @@
             </table>
 
             <div style="margin: 20px 50px;">
-                <mat-card-subtitle>Total Amount:{{totalAmount()}}</mat-card-subtitle>
                 <mat-card-subtitle>Total Amount:{{totalProducts()}}</mat-card-subtitle>
+                <mat-card-subtitle>Total Amount:{{totalAmount()}}</mat-card-subtitle>
+                @for (item of shareService.offers(); track $index) {
+                @if(item.minimumPurchase<= totalAmount()){
+                    <mat-card-subtitle>Amount After Offer :{{totalAmount()- item.discountValue}}</mat-card-subtitle>
+                    }
+                }
+                
             </div>
 
             <section class="example-section" style="margin: 10px 30px;">
-                <mat-checkbox class="example-margin" [disabled]="totalProducts()<=4">Get 10% off on more then 5
-                    items</mat-checkbox>
-                <mat-checkbox class="example-margin" [disabled]="totalAmount()<=999">Get 100 off on more then 1000
-                    rupees shoping</mat-checkbox>
+                @for (item of shareService.offers(); track $index) {
+                <div class="offer-text" [class.active-offer]="totalAmount() >= item.minimumPurchase"
+                    [class.inactive-offer]="totalAmount() < item.minimumPurchase">
+                    {{ item.description }}
+                </div>
+                }
             </section>
 
 
             <div>
                 <button matButton matStepperPrevious>Back</button>
-                <button matButton matStepperNext (click)="onBilling()">Next</button>
+                <button matButton matStepperNext [disabled]="!secondFormGroup.value.secondCtrl"
+                    (click)="onBilling()">Next</button>
             </div>
         </form>
         }@else {
@@ -177,6 +188,7 @@
     </mat-step>
     <mat-step>
         <ng-template matStepLabel>Preview</ng-template>
+        @if(secondFormGroup.value.secondCtrl){
         <mat-card-title>Name: {{customerName()|uppercase}}</mat-card-title>
         <mat-card-subtitle>Products</mat-card-subtitle>
         <mat-list role="list">
@@ -196,5 +208,9 @@
             <button matButton matStepperPrevious>Back</button>
             <button matButton (click)="onSubmit()">Order</button>
         </div>
+        }@else {
+            <h1>Enter the Crendintals fisrt</h1>
+        }
+
     </mat-step>
 </mat-stepper>

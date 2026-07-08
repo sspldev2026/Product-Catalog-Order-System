@@ -1,0 +1,57 @@
+<mat-card class="example-card" appearance="outlined">
+  <mat-card-header>
+    <mat-card-title>
+      Name: {{ order()?.customerName | uppercase }}
+    </mat-card-title>
+    <mat-card-subtitle>
+      OrderId: {{ order()?._id }}
+    </mat-card-subtitle>
+  </mat-card-header>
+
+  <mat-card-content>
+    <table class="items-table">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Product ID</th>
+          <th>Quantity</th>
+          <th>Subtotal</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @for (item of order()?.items; track $index) {
+        <tr>
+          <td>{{ item.productId.name }}</td>
+          <td>{{ item.productId._id }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>{{ item.subtotal | currency:'INR' }}</td>
+        </tr>
+        }
+      </tbody>
+    </table>
+
+
+  </mat-card-content>
+
+  <mat-card-footer>
+    <div class="footer">
+      <ul>
+        @for (item of order()?.offerIds; track $index) {
+          <li>
+          <span>Discount Applied : </span>
+          {{item.discountValue}}
+        </li>
+        }
+        <li>
+          <span> Amount Paid: </span>
+          {{ order()?.totalAmount | currency:'INR' }}
+        </li>
+        <li>
+          <span>Payment Method : </span>
+          {{ order()?.paymentMethod }}
+        </li>
+      </ul>
+    </div>
+  </mat-card-footer>
+</mat-card>

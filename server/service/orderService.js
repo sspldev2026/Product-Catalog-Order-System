@@ -7,7 +7,7 @@ const getAllOffers = async () => {
             populate: {
                 path: 'productId'
             }
-        })
+        }).populate("offerIds")
     } catch (error) {
         return error.message
     }
@@ -20,7 +20,7 @@ const getOffersById = async (id) => {
             populate: {
                 path: 'productId'
             }
-        })
+        }).populate("offerIds")
     } catch (error) {
         return error
     }

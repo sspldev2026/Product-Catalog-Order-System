@@ -1,17 +1,17 @@
 import { createReducer, on } from "@ngrx/store";
-import { AddToCart, AddToCartSuccess, billing, removeFromCart } from "./action.cart";
+import { AddToCart, AddToCartSuccess, billing, removeFromCart, resetCart } from "./action.cart";
 
 export interface item {
-    productName?:string;
+    productName?: string;
     productId: string;
     quantity: number;
-    price:number;
+    price: number;
     subtotal: number;
 }
 
 export interface Icart {
     customerName: string;
-    totalProduct:number;
+    totalProduct: number;
     totalAmount: number;
     items: item[]
     paymentMethod: "CASH" | "UPI" | "CARD"
@@ -20,7 +20,7 @@ export interface Icart {
 
 const initialCartState: Icart = {
     customerName: "",
-    totalProduct:0,
+    totalProduct: 0,
     totalAmount: 0,
     items: [],
     paymentMethod: "CASH"
@@ -34,53 +34,60 @@ export const cartReducer = createReducer(
         if (isProductInCart !== undefined) {
             return {
                 ...state,
-                items: state.items.map(item=>
+                items: state.items.map(item =>
                     item.productId === product.productId ?
-                    {
-                        ...item,
-                        quantity:item.quantity+1,
-                        subtotal:item.subtotal+item.price
-                    }:item
+                        {
+                            ...item,
+                            quantity: item.quantity + 1,
+                            subtotal: item.subtotal + item.price
+                        } : item
                 ),
-                totalProduct:state.totalProduct+product.quantity,
-                totalAmount:state.totalAmount+product.price
+                totalProduct: state.totalProduct + product.quantity,
+                totalAmount: state.totalAmount + product.price
             }
         }
         return {
             ...state,
             items: [...state.items, product],
-            totalProduct:state.totalProduct+product.quantity,
-            totalAmount:state.totalAmount+((product.quantity)*product.price)
+            totalProduct: state.totalProduct + product.quantity,
+            totalAmount: state.totalAmount + ((product.quantity) * product.price)
         }
     }),
-    on(removeFromCart,(state,{product})=>{
+    on(removeFromCart, (state, { product }) => {
         const isProductInCart = state.items.find(res => res.productId === product.productId)
         if (isProductInCart !== undefined && isProductInCart.quantity > 1) {
             return {
                 ...state,
-                items: state.items.map(item=>
+                items: state.items.map(item =>
                     item.productId === product.productId ?
-                    {
-                        ...item,
-                        quantity:item.quantity-1,
-                        subtotal:item.subtotal-item.price
-                    }:item
+                        {
+                            ...item,
+                            quantity: item.quantity - 1,
+                            subtotal: item.subtotal - item.price
+                        } : item
                 ),
-                totalProduct:state.totalProduct-1,
-                totalAmount:state.totalAmount-product.price
+                totalProduct: state.totalProduct - 1,
+                totalAmount: state.totalAmount - product.price
             }
         }
         return {
             ...state,
-            items:state.items.filter(res => res.productId !== product.productId),
-            totalProduct:state.totalProduct-1,
-            totalAmount:state.totalAmount-product.price
+            items: state.items.filter(res => res.productId !== product.productId),
+            totalProduct: state.totalProduct - 1,
+            totalAmount: state.totalAmount - product.price
         }
     }),
-    on(billing,(state,{name,paymentMethod})=>({
-            ...state,
-            customerName:name,
-            paymentMethod:paymentMethod
+    on(billing, (state, { name, paymentMethod }) => ({
+        ...state,
+        customerName: name,
+        paymentMethod: paymentMethod
     })),
+    on(resetCart, (state) => ({
+        ...state,
+        customerName: "",
+        totalAmount: 0,
+        items: [],
+        paymentMethod: "CASH"
+    }))
 
 )

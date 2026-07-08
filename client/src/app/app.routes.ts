@@ -1,7 +1,8 @@
 import { Routes } from '@angular/router';
 import { ShopingStore } from './features/shop/components/shoping-store/shoping-store';
-import { AddProduct } from './features/shop/components/add-product/add-product';
 import { ProductList } from './features/shop/components/product-list/product-list';
+import { OrderList } from './features/shop/components/order-list/order-list';
+import { OrderDetails } from './features/shop/components/order-details/order-details';
 
 export const routes: Routes = [
     {
@@ -19,7 +20,11 @@ export const routes: Routes = [
         component:ProductList
     },
     {
-        path:"order",
-        component:ProductList
+        path:"Order",
+        component:OrderList,
+    },
+    {
+        path:"Order/:id",
+        component:OrderDetails
     }
 ];
