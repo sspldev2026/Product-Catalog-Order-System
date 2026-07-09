@@ -3,6 +3,7 @@ import { inject, Injectable } from '@angular/core';
 import { orderResponce, ProductListResponse } from '../shopModel';
 import { toSignal } from '@angular/core/rxjs-interop';
 import {MatSnackBar} from '@angular/material/snack-bar';
+import { environment } from '../../environments/environment.development';
 
 export interface offers{
         _id: string,
@@ -41,7 +42,7 @@ export class ShareService {
     }
 
     return this.http.get<ProductListResponse>(
-      'http://localhost:8000/product',
+      `${environment.apiurl}/product`,
       { params }
     );
   }
@@ -49,10 +50,10 @@ export class ShareService {
   offers = toSignal<offers[]>(this.getOffers())
 
   getOffers(){
-    return this.http.get<offers[]>("http://localhost:8000/offer")
+    return this.http.get<offers[]>(`${environment.apiurl}/offer`)
   }
 
   showSnake(message:string){
-    this.snakemodule.open(message,"close")
+    this.snakemodule.open(message,"close",{duration:3000})
   }
 }

@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatTableDataSource, MatTableModule } from '@angular/material/table';
 import { MatPaginator } from "@angular/material/paginator";
 import { MatSelect, MatOption } from "@angular/material/select";
-import { category, Product, ProductListResponse } from '../../../../shared/shopModel';
+import { category, order, Product, ProductListResponse } from '../../../../shared/shopModel';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
 import { Store } from '@ngrx/store';
 import { AddToCart, billing, removeFromCart, resetCart } from '../../../../shared/store/cartState/action.cart';
@@ -22,6 +22,8 @@ import { A11yModule } from "@angular/cdk/a11y";
 import { CommonModule } from '@angular/common';
 import { ShareService } from '../../../../shared/service/share-service';
 import { Router } from '@angular/router';
+import { environment } from '../../../../environments/environment.development';
+import { ShopService } from '../../service/shop-service';
 
 export interface item {
   productName?: string;
@@ -60,6 +62,7 @@ export class ShopingStore {
   private store = inject(Store)
 
   searchSubject = new Subject<string>()
+  shopSerivce = inject(ShopService)
   shareService = inject(ShareService)
   router = inject(Router)
 
@@ -98,9 +101,7 @@ export class ShopingStore {
   ngOnInit(): void {
     this.dataSource.data = this.cart()
 
-    this.http.get<category[]>("http://localhost:8000/category").subscribe((res) => {
-      console.log(res)
-      console.log(this.cartState())
+    this.http.get<category[]>(`${environment.apiurl}/category`).subscribe((res) => {
       this.category.set(res)
     })
 
@@ -142,7 +143,6 @@ export class ShopingStore {
       subtotal: product.price,
     }
     this.store.dispatch(AddToCart({ product: payload }))
-    console.log(this.cartState())
     this.dataSource.data = this.cart()
   }
 
@@ -158,18 +158,22 @@ export class ShopingStore {
         paymentMethod: this.secondFormGroup.value.paymentMethod!
       })
     );
-    console.log(this.cartState())
   }
 
-  onSubmit(){
-    this.http.post("http://localhost:8000/order",this.apiDataSubmiton()).subscribe({
-      next:(res)=>{
-        this.shareService.showSnake("Order Has been placed")
-        this.store.dispatch(resetCart())
-        this.router.navigate(["/Order"])
-      }
-    })
-  }
+  onSubmit() {
+  this.shopSerivce.createOrder(this.apiDataSubmiton()).subscribe({
+    next: (res) => {
+      this.shareService.showSnake("Order has been placed");
+      this.store.dispatch(resetCart());
+      this.shopSerivce.getOrders();
+
+      this.router.navigate(['Order', res._id]);
+    },
+    error: (err) => {
+      console.error(err);
+    }
+  });
+}
 
   onCategoryChange(category: string) {
     this.filters.update(f => ({

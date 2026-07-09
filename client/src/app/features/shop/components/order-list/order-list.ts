@@ -19,8 +19,11 @@ export class OrderList {
   shopService = inject(ShopService)
   router = inject(Router)
 
+  ngOnInit(){
+    this.shopService.getOrders()
+  }
+
   OrderDetailPage(id:string){
-    console.log(id)
     this.router.navigate([`Order/${id}`])
   }
 }

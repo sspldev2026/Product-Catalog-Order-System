@@ -34,9 +34,7 @@
 
                 @for (product of productList(); track product._id) {
                 <mat-card class="product-card" appearance="outlined">
-                    <mat-card-header>
-                        <div mat-card-avatar class="example-header-image"></div>
-
+                    <mat-card-header style="padding: 10px 30px;">
                         <mat-card-title>{{ product.name }}</mat-card-title>
                         <mat-card-subtitle>{{ product.category?.title }}</mat-card-subtitle>
                     </mat-card-header>
@@ -155,11 +153,11 @@
             </table>
 
             <div style="margin: 20px 50px;">
-                <mat-card-subtitle>Total Amount:{{totalProducts()}}</mat-card-subtitle>
-                <mat-card-subtitle>Total Amount:{{totalAmount()}}</mat-card-subtitle>
+                <mat-card-subtitle>Total Amount: {{totalProducts()}}</mat-card-subtitle>
+                <mat-card-subtitle>Total Amount: {{totalAmount() | currency:"INR"}}</mat-card-subtitle>
                 @for (item of shareService.offers(); track $index) {
                 @if(item.minimumPurchase<= totalAmount()){
-                    <mat-card-subtitle>Amount After Offer :{{totalAmount()- item.discountValue}}</mat-card-subtitle>
+                    <mat-card-subtitle>Amount After {{item.title}}: {{totalAmount()- item.discountValue |currency:"INR"}}</mat-card-subtitle>
                     }
                 }
                 
@@ -203,7 +201,11 @@
         </mat-list>
         <mat-list-item role="listitem">Total Items {{totalProducts()}}</mat-list-item>
         <mat-list-item role="listitem">Total Amount {{totalAmount() |currency : "INR"}}</mat-list-item>
-        <p>You are now done.</p>
+        @for (item of shareService.offers(); track $index) {
+                @if(item.minimumPurchase <= totalAmount()){
+                    <mat-list-item>Amount After {{item.title}}: {{totalAmount()- item.discountValue | currency:"INR"}}</mat-list-item>
+                    }
+                }
         <div>
             <button matButton matStepperPrevious>Back</button>
             <button matButton (click)="onSubmit()">Order</button>

@@ -27,6 +27,7 @@ export interface ProductListResponse {
 }
 
 export interface order {
+  _id?:string,
   productId: Product,
   quantity: number,
   subtotal: number

@@ -15,6 +15,7 @@ import { ProductActions } from '../../../../shared/store/productState/action.pro
 import { selectCurrentPage, selectProducts, selectProductState, selectTotalPages } from '../../../../shared/store/productState/selector.product';
 import { MatButton } from '@angular/material/button';
 import { catchError, debounceTime, distinctUntilChanged, Subject } from 'rxjs';
+import { environment } from '../../../../environments/environment.development';
 
 @Component({
   selector: 'app-product-list',
@@ -67,8 +68,7 @@ export class ProductList implements OnInit {
 
   ngOnInit(): void {
     // this.store.dispatch(ProductActions.loadProducts({ page: 1, pageSize: 10 }))
-    this.http.get<category[]>("http://localhost:8000/category").subscribe((res) => {
-      console.log(res)
+    this.http.get<category[]>(`${environment.apiurl}/category`).subscribe((res) => {
       this.category.set(res)
     })
     
@@ -114,6 +114,4 @@ export class ProductList implements OnInit {
       page
     }));
   }
-
-
 }

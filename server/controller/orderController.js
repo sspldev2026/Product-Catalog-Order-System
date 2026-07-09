@@ -5,7 +5,7 @@ const { isInStock, updateStocksInProducts } = require("../service/productService
 const getAllOrderContoller = async (req, res) => {
     try {
         const data = await getAllOffers()
-        res.status(200).send(data)
+        res.status(200).send(data.reverse())
     } catch (error) {
         res.status(500).json({ error: error })
     }

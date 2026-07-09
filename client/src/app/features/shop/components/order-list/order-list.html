@@ -1,8 +1,8 @@
 <mat-list>
     <h1 style="margin: 30px 40px;">Order History</h1>
-    @for (order of shopService.Orders(); track $index) {
+    @for (order of shopService.Orders(); track order._id) {
     <div class="card">
-        <mat-list-item>{{order._id}} -- {{order.customerName|uppercase}}</mat-list-item>
+        <mat-list-item>{{order.customerName|uppercase}}</mat-list-item>
         <button matButton (click)="OrderDetailPage(order._id)" >
             See
             <mat-icon iconPositionEnd>arrow_forward</mat-icon>
